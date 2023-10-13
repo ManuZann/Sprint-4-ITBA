@@ -10,17 +10,66 @@ archivo_cheques = input("Nombre del archivo CSV que desea consultar (Recuerde ag
 if not os.path.isfile(archivo_cheques):
     with open(archivo_cheques, "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["NroCheque", "CodigoBanco", "CodigoSucursal", "NumeroCuentaOrigen", "NumeroCuentaDestino", "Valor", "FechaOrigen", "FechaPago", "DNI", "Estado"])
+        writer.writerow(["NroCheque", "CodigoBanco", "CodigoSucursal", "NumeroCuentaOrigen", "NumeroCuentaDestino", "Valor", "FechaOrigen", "FechaPago", "DNI", "Estado", "Tipo"])
         # ~ aca agregar otros cheques
 
-def cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado):
+#Funciones para validar los tipos de datos ingresados
+def validar_fecha(fechaEntrada):
+    try:
+        fecha = datetime.strptime(fechaEntrada, "%Y-%m-%d")
+        return True, fecha
+    except ValueError:
+        return False, None
+
+def validar_entero(num):
+    try:
+        entero = int(num)
+        return True, entero
+    except ValueError:
+        return False, None
+
+def cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado, tipo):
     """Guarda un cheque en el archivo CSV"""
+
+    #Valida que las fechas tengan el formato adecuado
+    fecha_origen_valida, fecha_origen = validar_fecha(fecha_origen)
+    fecha_pago_valida, fecha_pago = validar_fecha(fecha_pago)
+    if not fecha_origen_valida or not fecha_pago_valida:
+        print("Error: Las fechas no tienen el formato correcto (YYYY-MM-DD).")
+        return
+
+    # Valida los campos de numeros enteros (DNI, NroCheque, etc)
+    nro_cheque_valid, nro_cheque = validar_entero(nro_cheque)
+    numero_cuenta_origen_valid, numero_cuenta_origen = validar_entero(numero_cuenta_origen)
+    numero_cuenta_destino_valid, numero_cuenta_destino = validar_entero(numero_cuenta_destino)
+    valor_valid, valor = validar_entero(valor)
+    dni_valid, dni = validar_entero(dni)
+    if not (nro_cheque_valid and numero_cuenta_origen_valid and numero_cuenta_destino_valid and valor_valid and dni_valid):
+        print("Error: Los valores numércios deben ser un números enteros.")
+        return
+    
+    #Se abre el archivo para ver si se quiere agregar un nroCheque ya existente a un usuario
+    with open(archivo_cheques, "r") as file:
+        arch = csv.DictReader(file)
+        for fila in arch:
+            if (
+                fila["NroCheque"] == nro_cheque and
+                fila["NumeroCuentaOrigen"] == numero_cuenta_origen and
+                fila["DNI"] == dni
+            ):
+                print("Error: El número de cheque ya existe en la misma cuenta para el DNI ingresado.")
+                return
+
     with open(archivo_cheques, "a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado])
+    
+    #Mensaje de exito :)
+    print("Cheque agregado con éxito.")
 
-def listar_cheques(filtro=None, fecha_inicio=None, fecha_fin=None):
+def listar_cheques(filtro=None, fecha_inicio=None, fecha_fin=None, tipo=None):
     """Ordena los cheques en el archivo CSV"""
+
     with open(archivo_cheques, "r") as file:
         reader = csv.DictReader(file)
         cheques = [cheque for cheque in reader]
@@ -32,6 +81,9 @@ def listar_cheques(filtro=None, fecha_inicio=None, fecha_fin=None):
         fecha_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
         fecha_fin = datetime.strptime(fecha_fin, "%Y-%m-%d")
         cheques = [cheque for cheque in cheques if fecha_inicio <= datetime.fromtimestamp(float(cheque["FechaPago"])) <= fecha_fin]
+    
+    if tipo:
+        cheques = [cheque for cheque in cheques if cheque["Tipo"] == tipo]
 
     return cheques
 
@@ -65,14 +117,16 @@ if __name__ == "__main__":
             fecha_pago = input("Fecha de pago (YYYY-MM-DD): ")
             dni = input("DNI del cliente: ")
             estado = input("Estado (pendiente/aprobado/rechazado): ")
-            cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado)
+            tipo = input("Tipo de Cheque (emitido/depositado): ")
+            cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado, tipo)
             print("Cheque agregado con éxito.")
 
         elif opcion == "2":
             dni = input("Ingrese el DNI del cliente (deje en blanco para omitir este filtro): ")
             fecha_inicio = input("Ingrese la fecha de inicio (YYYY-MM-DD) (deje en blanco para omitir este filtro): ")
             fecha_fin = input("Ingrese la fecha de fin (YYYY-MM-DD) (deje en blanco para omitir este filtro): ")
-            cheques_filtrados = listar_cheques(dni, fecha_inicio, fecha_fin)
+            tipo = input("Ingrese el tipo de cheque (emitido/depositado) (deje en blanco para omitir este filtro): ")
+            cheques_filtrados = listar_cheques(dni, fecha_inicio, fecha_fin, tipo)
 
             if not cheques_filtrados:
                 print("No se encontraron cheques que cumplan con los criterios de búsqueda.")
@@ -89,6 +143,7 @@ if __name__ == "__main__":
                     print(f"FechaPago: {datetime.fromtimestamp(float(cheque['FechaPago'])).strftime('%Y-%m-%d')}")
                     print(f"DNI: {cheque['DNI']}")
                     print(f"Estado: {cheque['Estado']}")
+                    print(f"Tipo: {cheque['Tipo']}")
 
         elif opcion == "3":
             archivo_salida = input("Nombre del archivo de salida CSV: ")
