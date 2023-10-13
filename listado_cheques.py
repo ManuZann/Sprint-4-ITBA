@@ -4,22 +4,24 @@ from datetime import datetime
 
 # ~ el archivo CSV
 # ~ archivo_cheques = 'cheques.csv'
-archivo_cheques = input('Nombre del archivo CSV que desea consultar (Recuerde agregar el .csv al final)')
+archivo_cheques = input("Nombre del archivo CSV que desea consultar (Recuerde agregar el .csv al final)")
 
 # ~ Verifica si el archivo CSV existe y si no existe lo crea
 if not os.path.isfile(archivo_cheques):
-    with open(archivo_cheques, 'w', newline='') as file:
+    with open(archivo_cheques, "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["NroCheque", "CodigoBanco", "CodigoSucursal", "NumeroCuentaOrigen", "NumeroCuentaDestino", "Valor", "FechaOrigen", "FechaPago", "DNI", "Estado"])
         # ~ aca agregar otros cheques
 
 def cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado):
-    with open(archivo_cheques, 'a', newline='') as file:
+    """Guarda un cheque en el archivo CSV"""
+    with open(archivo_cheques, "a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado])
 
 def listar_cheques(filtro=None, fecha_inicio=None, fecha_fin=None):
-    with open(archivo_cheques, 'r') as file:
+    """Ordena los cheques en el archivo CSV"""
+    with open(archivo_cheques, "r") as file:
         reader = csv.DictReader(file)
         cheques = [cheque for cheque in reader]
 
@@ -34,7 +36,8 @@ def listar_cheques(filtro=None, fecha_inicio=None, fecha_fin=None):
     return cheques
 
 def exportar_cheques(cheques, archivo_salida):
-    with open(archivo_salida, 'w', newline='') as file:
+    """Esta funcion exporta los cheques a un archivo CSV """
+    with open(archivo_salida, "w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=cheques[0].keys())
         writer.writeheader()
         writer.writerows(cheques)
