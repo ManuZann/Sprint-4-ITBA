@@ -1,6 +1,7 @@
 import csv
 import os
 from datetime import datetime
+import time
 
 # ~ el archivo CSV
 # ~ archivo_cheques = 'cheques.csv'
@@ -16,8 +17,8 @@ if not os.path.isfile(archivo_cheques):
 #Funciones para validar los tipos de datos ingresados
 def validar_fecha(fechaEntrada):
     try:
-        datetime.strptime(fechaEntrada, "%Y-%m-%d")
-        return True, fechaEntrada
+        d = datetime.strptime(fechaEntrada, "%Y-%m-%d")
+        return True, d
     except ValueError:
         return False, None
 
@@ -153,8 +154,8 @@ if __name__ == "__main__":
                     print(f"NumeroCuentaOrigen: {cheque['NumeroCuentaOrigen']}")
                     print(f"NumeroCuentaDestino: {cheque['NumeroCuentaDestino']}")
                     print(f"Valor: {cheque['Valor']}")
-                    print(f"FechaOrigen: {datetime.fromtimestamp(float(cheque['FechaOrigen'])).strftime('%Y-%m-%d')}")
-                    print(f"FechaPago: {datetime.fromtimestamp(float(cheque['FechaPago'])).strftime('%Y-%m-%d')}")
+                    print(f"FechaOrigen: {datetime.fromtimestamp(time.mktime(datetime.strptime(cheque['FechaOrigen'],'%Y-%m-%d').timetuple())).strftime('%Y-%m-%d')}")
+                    print(f"FechaPago: {datetime.fromtimestamp(time.mktime(datetime.strptime(cheque['FechaPago'],'%Y-%m-%d').timetuple())).strftime('%Y-%m-%d')}")
                     print(f"DNI: {cheque['DNI']}")
                     print(f"Estado: {cheque['Estado']}")
                     print(f"Tipo: {cheque['Tipo']}")
