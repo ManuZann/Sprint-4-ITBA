@@ -17,14 +17,14 @@ if not os.path.isfile(archivo_cheques):
 def validar_fecha(fechaEntrada):
     try:
         fecha = datetime.strptime(fechaEntrada, "%Y-%m-%d")
-        return True, fecha
+        return True, fechaEntrada
     except ValueError:
         return False, None
 
 def validar_entero(num):
     try:
         entero = int(num)
-        return True, entero
+        return True, num
     except ValueError:
         return False, None
 
@@ -60,12 +60,15 @@ def cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_orige
                 print("Error: El número de cheque ya existe en la misma cuenta para el DNI ingresado.")
                 return
 
+    # Si no se encuentra un cheque duplicado, agrega el cheque al archivo .CSV
     with open(archivo_cheques, "a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow([nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado])
-    
-    #Mensaje de exito :)
+        writer.writerow([nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado, tipo])
     print("Cheque agregado con éxito.")
+
+        
+    
+
 
 def listar_cheques(filtro=None, fecha_inicio=None, fecha_fin=None, tipo=None):
     """Ordena los cheques en el archivo CSV"""
@@ -119,7 +122,6 @@ if __name__ == "__main__":
             estado = input("Estado (pendiente/aprobado/rechazado): ")
             tipo = input("Tipo de Cheque (emitido/depositado): ")
             cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado, tipo)
-            print("Cheque agregado con éxito.")
 
         elif opcion == "2":
             dni = input("Ingrese el DNI del cliente (deje en blanco para omitir este filtro): ")
