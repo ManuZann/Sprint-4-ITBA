@@ -16,15 +16,26 @@ if not os.path.isfile(archivo_cheques):
 #Funciones para validar los tipos de datos ingresados
 def validar_fecha(fechaEntrada):
     try:
-        fecha = datetime.strptime(fechaEntrada, "%Y-%m-%d")
+        datetime.strptime(fechaEntrada, "%Y-%m-%d")
         return True, fechaEntrada
     except ValueError:
         return False, None
 
 def validar_entero(num):
     try:
-        entero = int(num)
+        int(num)
         return True, num
+    except ValueError:
+        return False, None
+
+def validar_dni(dni):
+    try:
+        #Controla que sea un strings de numeros
+        entero = int(dni)
+        if len(dni) == 8:
+            return True, dni
+        else:
+            return False, None
     except ValueError:
         return False, None
 
@@ -43,9 +54,14 @@ def cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_orige
     numero_cuenta_origen_valid, numero_cuenta_origen = validar_entero(numero_cuenta_origen)
     numero_cuenta_destino_valid, numero_cuenta_destino = validar_entero(numero_cuenta_destino)
     valor_valid, valor = validar_entero(valor)
-    dni_valid, dni = validar_entero(dni)
-    if not (nro_cheque_valid and numero_cuenta_origen_valid and numero_cuenta_destino_valid and valor_valid and dni_valid):
+    if not (nro_cheque_valid and numero_cuenta_origen_valid and numero_cuenta_destino_valid and valor_valid):
         print("Error: Los valores numércios deben ser un números enteros.")
+        return
+    
+    #Controla que el DNI tenga 8 digitos y sean numeros
+    dni_valid, dni = validar_dni(dni)
+    if not (dni_valid):
+        print("Error: El DNI debe tener 8 caracteres numéricos.")
         return
     
     #Se abre el archivo para ver si se quiere agregar un nroCheque ya existente a un usuario
@@ -65,10 +81,6 @@ def cargar_cheque(nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_orige
         writer = csv.writer(file)
         writer.writerow([nro_cheque, codigo_banco, codigo_sucursal, numero_cuenta_origen, numero_cuenta_destino, valor, fecha_origen, fecha_pago, dni, estado, tipo])
     print("Cheque agregado con éxito.")
-
-        
-    
-
 
 def listar_cheques(filtro=None, fecha_inicio=None, fecha_fin=None, tipo=None):
     """Ordena los cheques en el archivo CSV"""
