@@ -4,7 +4,7 @@ from datetime import datetime
 
 # ~ el archivo CSV
 # ~ archivo_cheques = 'cheques.csv'
-archivo_cheques = input("Nombre del archivo CSV que desea consultar (Recuerde agregar el .csv al final)")
+archivo_cheques = input("Nombre del archivo CSV que desea consultar (NO es necesario agregar .csv al final) ")+".csv"
 
 # ~ Verifica si el archivo CSV existe y si no existe lo crea
 if not os.path.isfile(archivo_cheques):
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     while True:
         print("\nMenú:")
         print("1. Agregar cheque")
-        print("2. Filtrar cheques por cliente y/o fecha")
+        print("2. Filtrar cheques por cliente, fecha y/o tipo de cheque")
         print("3. Exportar cheques filtrados")
         print("4. Salir")
         opcion = input("Seleccione una opción: ")
@@ -148,9 +148,12 @@ if __name__ == "__main__":
                     print(f"Tipo: {cheque['Tipo']}")
 
         elif opcion == "3":
-            archivo_salida = input("Nombre del archivo de salida CSV: ")
-            exportar_cheques(cheques_filtrados, archivo_salida)
-            print(f"Cheques exportados a {archivo_salida}.")
+            try:
+                archivo_salida = input("Nombre del archivo de salida CSV: ")+".csv"
+                exportar_cheques(cheques_filtrados, archivo_salida)
+                print(f"Cheques exportados a {archivo_salida}")
+            except NameError:
+                print("Se debe filtrar los cheques antes de ser importados.")
 
         elif opcion == "4":
             break
