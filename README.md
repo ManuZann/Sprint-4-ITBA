@@ -7,7 +7,12 @@ El script debe permitir a los usuarios filtrar y visualizar los datos de los che
 Además, se debe gestionar la exportación de datos aun archivo CSV si es necesario.
 
 ## Ejecutar
-Para ejecutar el archivo debe utilizarse el comando
+Antes de ejecutar el archivo verificar si tiene instalado Python en la PC.
+Ir a la consola de su preferencia y ejecutar el comando:
+```py --version```
+De caso contrario instalarlo:
+``` https://www.python.org/downloads/ ```
+Para ejecutar el archivo utilizar el siguiente comando (Antes de ejecutar posicionar el Path en la ubicacion de dicho archivo):
 ```python listado_cheques.py```
 Luego, este nos pedirá ingresar el nombre del .csv que tengamos (si no se encuentra, se creará uno vacío)
 
